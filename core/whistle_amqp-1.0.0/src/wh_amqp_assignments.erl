@@ -50,8 +50,8 @@ start_link() -> gen_server:start_link({'local', ?MODULE}, ?MODULE, [], []).
 -spec find() -> wh_amqp_assignment() | {'error', 'no_channel'}.
 find() -> find(wh_amqp_channel:consumer_pid()).
 
--spec find(pid()) -> wh_amqp_assignment() | {'error', 'no_channel'}.
-find(Consumer) ->
+-spec find(pid() | ne_binary()) -> wh_amqp_assignment() | {'error', 'no_channel'}.
+find(Consumer) when is_pid(Consumer) ->
     Pattern = #wh_amqp_assignment{consumer=Consumer, _='_'},
     case ets:match_object(?TAB, Pattern, 1) of
         {[#wh_amqp_assignment{}=Assignment], _} -> Assignment;
@@ -445,12 +445,14 @@ add_channel_primary_broker(Broker, Connection, Channel) ->
     %% and assign it the new channel
     MatchSpec = [{#wh_amqp_assignment{type='float'
                                       ,broker='undefined'
+                                       ,channel='undefined'
                                       ,_='_'},
                    [],
                    ['$_']
                   }
                  ,{#wh_amqp_assignment{type='sticky'
                                        ,broker=Broker
+                                       ,channel='undefined'
                                        ,_='_'},
                    [],
                    ['$_']
@@ -489,6 +491,7 @@ add_channel_alternate_broker(Broker, Connection, Channel) ->
     %% channel from this broker and assign it the new channel
     Pattern = #wh_amqp_assignment{type='sticky'
                                   ,broker=Broker
+                                  ,channel='undefined'
                                   ,_='_'},
     case ets:match_object(?TAB, Pattern, 1) of
         '$end_of_table' -> cache(Broker, Connection, Channel);
@@ -779,6 +782,7 @@ find_reference(Ref) ->
 %% @end
 %%--------------------------------------------------------------------
 -spec log_short_lived(wh_amqp_assignment()) -> 'ok'.
+log_short_lived(#wh_amqp_assignment{assigned='undefined'}) -> 'ok';
 log_short_lived(#wh_amqp_assignment{assigned=Timestamp}=Assignment) ->
     Duration = wh_util:elapsed_s(Timestamp),
     case Duration < 5 of
