@@ -62,6 +62,20 @@
 %% Routing key prefix for rating
 -define(KEY_RATING_REQ, <<"call.rating">>).
 
+%% Fax Events
+-define(FAX_CALL_EVENT_HEADERS, [<<"Fax-Success">>, <<"Fax-Result-Code">>
+                                ,<<"Fax-Result-Text">>, <<"Fax-ECM-Used">>
+                                ,<<"Fax-Transferred-Pages">>, <<"Fax-Total-Pages">>
+                                ,<<"Fax-Bad-Rows">>, <<"Fax-Transfer-Rate">>
+                                ,<<"Fax-Local-Station-ID">>, <<"Fax-Remote-Station-ID">>
+                                ,<<"Fax-Remote-Country">>, <<"Fax-Remote-Vendor">>, <<"Fax-Remote-Model">>
+                                ,<<"Fax-Image-Resolution">>, <<"Fax-File-Image-Resolution">>
+                                ,<<"Fax-Image-Size">>
+                                ,<<"Fax-Image-Pixel-Size">>, <<"Fax-File-Image-Pixel-Size">>
+                                ,<<"Fax-Longest-Bad-Row-Run">>
+                                ,<<"Fax-Encoding">>, <<"Fax-Encoding-Name">>
+                                ]).
+
 %% Call Events
 -define(CALL_EVENT_ROUTING_KEY(Event, CallId), <<"call."
                                                  ,(wh_util:to_binary(Event))/binary
@@ -69,6 +83,7 @@
                                                  ,(amqp_util:encode(CallId))/binary>>).
 -define(CALL_EVENT_HEADERS, [<<"Call-ID">>]).
 -define(OPTIONAL_CALL_EVENT_HEADERS, [<<"Application-Name">>, <<"Application-Response">>
+                                      ,<<"Application-Event">>, <<"Application-Status">>
                                       ,<<"Custom-Channel-Vars">>, <<"Timestamp">>, <<"Channel-State">>
                                       ,<<"Call-Direction">>, <<"Transfer-History">>
                                       ,<<"Other-Leg-Direction">>, <<"Other-Leg-Caller-ID-Name">>
@@ -80,10 +95,6 @@
                                       ,<<"Raw-Application-Name">>, <<"Raw-Application-Data">>
                                       ,<<"Length">>, <<"Silence-Terminated">> %% Record-related
                                       ,<<"Channel-Call-State">>, <<"User-Agent">>
-                                      ,<<"Fax-Success">>, <<"Fax-Result-Code">>
-                                      ,<<"Fax-Result-Text">>, <<"Fax-ECM-Used">>
-                                      ,<<"Fax-Transferred-Pages">>, <<"Fax-Total-Pages">>
-                                      ,<<"Fax-Bad-Rows">>, <<"Fax-Transfer-Rate">>
                                       ,<<"Switch-Hostname">>, <<"Group-ID">>
                                       ,<<"Control-Queue">>, <<"Channel-Moving">>
                                       ,<<"Conference-Name">>, <<"Conference-Config">>
@@ -93,6 +104,7 @@
                                       ,<<"Digits-Dialed">>, <<"Presence-ID">>, <<"Media-Server">>
                                       ,<<"Caller-ID-Number">>, <<"Caller-ID-Name">>
                                       ,<<"Callee-ID-Number">>, <<"Callee-ID-Name">>
+                                     | ?FAX_CALL_EVENT_HEADERS
                                      ]).
 -define(CALL_EVENT_VALUES, [{<<"Event-Category">>, <<"call_event">>}]).
 -define(CALL_EVENT_TYPES, [{<<"Custom-Channel-Vars">>, fun wh_json:is_json_object/1}]).
