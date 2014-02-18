@@ -35,7 +35,7 @@ init(Hostname, SessionCount, Address, Options) ->
 			State = #state{options = Options, peer_ip = Address},
 			{ok, Banner, State};
 		true ->
-			lager:info("Connection limit exceeded"),
+			lager:info("Connection limit exceeded ~p",[Address]),
 			{stop, normal, ["421 ", Hostname, " is too busy to accept mail right now"]}
 	end.
 
@@ -229,6 +229,7 @@ add_fax_document(FaxNumber, FaxBoxDoc, #state{docs=Docs}=State) ->
 	Doc = wh_json:set_values([{<<"pvt_type">>, <<"fax">>}
                              ,{<<"pvt_job_status">>, <<"pending">>}
                              ,{<<"attempts">>, 0}
+                             ,{<<"pvt_created">>, wh_util:current_tstamp()}                             
                              ,{<<"pvt_account_id">>, AccountId}
                              ,{<<"pvt_account_db">>, AccountDb}], JObj),
 	NewDocs = [Doc | Docs],
